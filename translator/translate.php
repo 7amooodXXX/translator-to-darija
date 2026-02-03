@@ -1,46 +1,39 @@
 <?php
-$text = $_POST['text'];
 
-$data = json_encode([
-    "text" => $text
-]);
+$text = $_POST['text'] ?? '';
+
+if (!$text) {
+    header("Location: index.php");
+    exit;
+}
 
 $ch = curl_init("http://localhost:8080/translator/api/translate");
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    "Content-Type: application/json"
+
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        "Content-Type: application/json",
+        "Authorization: Basic " . base64_encode("admin:admin1312")
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        "text" => $text
+    ])
 ]);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
 $response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
-$result = json_decode($response, true);
-?>
+$translated = "Erreur serveur";
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Result</title>
-    <link rel="stylesheet" href="assets/style.css">
-</head>
-<body>
+if ($httpCode === 200 && $response) {
+    $data = json_decode($response, true);
+    if (isset($data['translated'])) {
+        $translated = $data['translated'];
+    }
+}
 
-<div class="container">
-    <h2>Translation Result</h2>
+header("Location: index.php?translated=" . urlencode($translated));
+exit;
 
-    <p><b>Original:</b><br><?= htmlspecialchars($result['original']) ?></p>
-
-    <div class="result">
-        <b>Darija:</b><br>
-        <?= htmlspecialchars($result['translated']) ?>
-    </div>
-
-    <br>
-    <a href="index.php">⬅ Back</a>
-</div>
-
-</body>
-</html>
