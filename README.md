@@ -94,6 +94,14 @@ This project uses the Google Gemini API for translation.
 
 ---
 
+## Demo Video
+
+https://drive.google.com/file/d/1bWyY0oO6cgMuBgC2CqU0BOk7UqRViriz/view?usp=sharing
+
+
+---
+
+
 ## Author
 
 Developed by **Spakalw1312**
